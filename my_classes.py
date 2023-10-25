@@ -111,8 +111,8 @@ class Record:
             
     def __str__(self):
         if self.birthday.value:
-            return f"Contact name: {self.name.value}, phones: {'; '.join(p.value for p in self.phones)}, birthday: {self.birthday.value} ({self.days_to_birthday()} days to birthday)"
-        return f"Contact name: {self.name.value}, phones: {'; '.join(p.value for p in self.phones)}"
+            return "Contact name: {:<15}| phones: {:<12}| birthday: {} ({} days to birthday)".format(self.name.value, "; ".join(p.value for p in self.phones), self.birthday.value, self.days_to_birthday() )
+        return "Contact name: {:<15}| phones: {:<12}|".format(self.name.value, "; ".join(p.value for p in self.phones))
 
 
 class AddressBook(UserDict):

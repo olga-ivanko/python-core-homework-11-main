@@ -1,8 +1,16 @@
 from my_classes import Field, Name, Phone, Record, AddressBook
 from datetime import datetime
+import pickle
+import re
 
-
-book = AddressBook()
+try: 
+    file_name = "book.bin"
+    with open(file_name, "rb") as fb: 
+        unpacked  = pickle.load(fb)
+        print(f"AddressBook with {len(unpacked)} contacts is succesfuly uploaded")
+    book = unpacked
+except FileNotFoundError:
+    book = AddressBook()
 
 
 def user_error(func):
@@ -85,10 +93,10 @@ def func_hello(*args):
 def func_show_all(*args):
     if len(book)==0:
         return f"Your contacts list is empty"
-    show = ""
+    line = ""
     for record in book.values():
-        show += f"{record}\n" 
-    return show
+        line += f"{record}\n" 
+    return line
 
 
 def func_show(*args):
@@ -100,11 +108,33 @@ def func_show(*args):
         line += rec
     return line
 
+
+def func_find(*args):
+    line = ""
+    for record in book.values():
+        found_rec = re.findall(args[0], str(record))
+        if len(found_rec) != 0:
+            line += f"{record}\n" 
+    
+    if len(line) == 0:
+        return f"the search for key \"{args[0]}\" gave no results. Try other key."
+    print(f"result for \"{args[0]}\" search:")
+    return line
+
+
+def func_remove(*args):
+    rec_id = args[0]
+    book.delete(rec_id)
+    return f"Contact {rec_id} succesfully removed"
+
 def unknown(*args):
     return "Unknown command. Try again."
 
 
 def func_good_bye(*args):
+    with open(file_name, "wb") as fb:
+        pickle.dump(book, fb)
+        print("AddressBook is saved as book.bin")
     print(f"Good bye!")
     exit()
         
@@ -115,9 +145,11 @@ FUNCTIONS = {"hello" : func_hello,
             "phone" : func_phone,
             "show all" : func_show_all,
             "show" : func_show,
+            "find": func_find,
             "good bye" : func_good_bye, 
             "close" : func_good_bye, 
             "exit" : func_good_bye,
+            "remove": func_remove,
             "": func_good_bye}
 
 
@@ -129,6 +161,7 @@ def parser(text: str):
 
 
 def main():
+ 
     while True:
         user_input = input(">>>")
         func, data = parser(user_input.lower())
